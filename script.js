@@ -177,6 +177,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function createConfetti() {
         const colors = ['#7A9E78', '#B8C9B5', '#C5A467', '#D4BC8A', '#4A7248'];
         const container = document.querySelector('.rsvp-section');
+        if (!container) return;
+        
+        container.style.position = 'relative';
+        container.style.overflow = 'hidden';
+        
+        const fragment = document.createDocumentFragment();
+        const confettis = [];
         
         for (let i = 0; i < 50; i++) {
             const confetti = document.createElement('div');
@@ -192,23 +199,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 pointer-events: none;
                 z-index: 10;
             `;
-            container.style.position = 'relative';
-            container.style.overflow = 'hidden';
-            container.appendChild(confetti);
-
-            // Animate
+            fragment.appendChild(confetti);
+            
             const duration = Math.random() * 2000 + 1500;
             const delay = Math.random() * 500;
-            
-            confetti.animate([
-                { 
-                    transform: `translateY(-20px) rotate(0deg)`, 
-                    opacity: 1 
-                },
-                { 
-                    transform: `translateY(${container.offsetHeight}px) rotate(${Math.random() * 720}deg)`, 
-                    opacity: 0 
-                }
+            confettis.push({ el: confetti, duration, delay });
+        }
+        
+        container.appendChild(fragment);
+
+        confettis.forEach(({ el, duration, delay }) => {
+            el.animate([
+                { transform: `translateY(-20px) rotate(0deg)`, opacity: 1 },
+                { transform: `translateY(${container.offsetHeight}px) rotate(${Math.random() * 720}deg)`, opacity: 0 }
             ], {
                 duration: duration,
                 delay: delay,
@@ -216,25 +219,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 fill: 'forwards'
             });
 
-            // Remove after animation
-            setTimeout(() => confetti.remove(), duration + delay + 100);
-        }
+            setTimeout(() => el.remove(), duration + delay + 100);
+        });
     }
 
     // ===== PARALLAX-LIKE EFFECT ON HERO =====
     let ticking = false;
-    window.addEventListener('scroll', () => {
-        if (!ticking) {
-            requestAnimationFrame(() => {
-                const scrollY = window.scrollY;
-                const heroInner = document.querySelector('.hero-inner');
-                if (heroInner && scrollY < window.innerHeight) {
-                    heroInner.style.transform = `translateY(${scrollY * 0.3}px)`;
-                    heroInner.style.opacity = 1 - (scrollY / window.innerHeight) * 0.5;
-                }
-                ticking = false;
-            });
-            ticking = true;
-        }
-    });
+    const heroInner = document.querySelector('.hero-inner');
+    
+    if (heroInner) {
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrollY = window.scrollY;
+                    if (scrollY < window.innerHeight) {
+                        heroInner.style.transform = `translateY(${scrollY * 0.3}px)`;
+                        heroInner.style.opacity = 1 - (scrollY / window.innerHeight) * 0.5;
+                    }
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+    }
 });
