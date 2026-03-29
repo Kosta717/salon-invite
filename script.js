@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // --- ОПЦИЯ 3: Сохранение прямо в Google Таблицу (Рекомендуется для баз данных) ---
             // Скрипт для создания Web App в Google Таблицах я предоставил вам в чате
-            const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbymYVUgCGcXD-3hT7k4dEkNh-nwvwpnUch6qYzuse8h0G3lwYJs7C9UCIRnu6FttBXr/exec'; // Вставьте сюда URL вашего развернутого веб-приложения (Web App)
+            const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbx1NeGOiFUDMYh-oUiPumDaHagiWso-iwDN_1xULjL2T-Ox8hE0kAATc6wpIahtoPiI/exec'; // Вставьте сюда URL вашего развернутого веб-приложения (Web App)
             
             if (GOOGLE_APP_URL) {
                 try {
