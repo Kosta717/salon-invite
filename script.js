@@ -70,8 +70,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const rsvpSuccess = document.getElementById('rsvpSuccess');
 
     if (rsvpForm) {
-        rsvpForm.addEventListener('submit', (e) => {
+        rsvpForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.textContent = 'Отправка...';
+            submitBtn.disabled = true;
 
             const formData = {
                 name: document.getElementById('guestName').value.trim(),
@@ -80,16 +85,71 @@ document.addEventListener('DOMContentLoaded', () => {
                 timestamp: new Date().toISOString()
             };
 
-            // Save to localStorage
+            // --- ОПЦИЯ 1: Отправка в Telegram (Рекомендуется) ---
+            // Для работы нужно создать бота в @BotFather и узнать свой CHAT_ID
+            const TELEGRAM_BOT_TOKEN = ''; // Пример: '123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ'
+            const TELEGRAM_CHAT_ID = ''; // Пример: '-1001234567890' (или свой личный ID)
+            
+            if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
+                const message = `🎉 Новая заявка (Республика Красоты)!\n\nИмя: ${formData.name}\nФамилия: ${formData.surname}\nТелефон: ${formData.phone}`;
+                try {
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message })
+                    });
+                } catch (error) {
+                    console.error('Ошибка отправки в Telegram:', error);
+                }
+            }
+
+            // --- ОПЦИЯ 2: Отправка на Email через Formspree ---
+            // Зарегистрируйтесь на formspree.io, создайте форму и вставьте её ID сюда
+            const FORMSPREE_ID = ''; // Пример: 'xabcdefg'
+            
+            if (FORMSPREE_ID) {
+                try {
+                    await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+                        method: 'POST',
+                        body: new FormData(rsvpForm),
+                        headers: { 'Accept': 'application/json' }
+                    });
+                } catch (error) {
+                    console.error('Ошибка отправки на Formspree:', error);
+                }
+            }
+
+            // --- ОПЦИЯ 3: Сохранение прямо в Google Таблицу (Рекомендуется для баз данных) ---
+            // Скрипт для создания Web App в Google Таблицах я предоставил вам в чате
+            const GOOGLE_APP_URL = 'https://script.google.com/macros/s/AKfycbymYVUgCGcXD-3hT7k4dEkNh-nwvwpnUch6qYzuse8h0G3lwYJs7C9UCIRnu6FttBXr/exec'; // Вставьте сюда URL вашего развернутого веб-приложения (Web App)
+            
+            if (GOOGLE_APP_URL) {
+                try {
+                    await fetch(GOOGLE_APP_URL, {
+                        method: 'POST',
+                        mode: 'no-cors', // Это важно, чтобы браузер не блокировал запрос (CORS)
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                } catch (error) {
+                    console.error('Ошибка отправки в Google Таблицу:', error);
+                }
+            }
+
+            // Сохраняем в localStorage как резервную копию в браузере
             const responses = JSON.parse(localStorage.getItem('rsvpResponses') || '[]');
             responses.push(formData);
             localStorage.setItem('rsvpResponses', JSON.stringify(responses));
 
-            // Show success message
+            // Показываем сообщение об успехе
             rsvpForm.style.display = 'none';
             rsvpSuccess.classList.add('show');
 
-            // Create confetti effect
+            // Восстанавливаем кнопку (на случай если форма будет показана снова)
+            submitBtn.textContent = originalBtnText;
+            submitBtn.disabled = false;
+
+            // Запускаем конфетти
             createConfetti();
         });
     }
